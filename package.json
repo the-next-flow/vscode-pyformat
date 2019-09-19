@@ -4,6 +4,11 @@
 	"description": "Providing code formatting and import organization using autopep8 and isort",
 	"version": "1.0.0",
 	"publisher": "giyyapan",
+	"author": {
+		"name": "giyyapan",
+		"email": "giyyapan@gmail.com"
+	},
+	"license": "MIT",
 	"engines": {
 		"vscode": "^1.38.0"
 	},
