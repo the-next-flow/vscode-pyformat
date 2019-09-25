@@ -4,7 +4,7 @@ Providing code formatting and import sorting for python codes using `autopep8` a
 
 Pyformat will read your "python.pythonPath" configuration to choose correct python environment.
 
-If you don't have autopep8 and isort installed, Pyformat will ask and call `pip` to install them for you.
+Note: `autopep8` and `isort` must be installed in your selected python environment.
 
 ## Why
 There's some reason that I can't use the official [vscode-python](https://marketplace.visualstudio.com/items?itemName=ms-python.python), so I created this extension for myself.

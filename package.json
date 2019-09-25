@@ -4,6 +4,11 @@
 	"description": "Providing code formatting and import organization using autopep8 and isort",
 	"version": "1.0.0",
 	"publisher": "giyyapan",
+	"homepage": "https://github.com/giyyapan/vscode-pyformat",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/giyyapan/vscode-pyformat"
+	},
 	"author": {
 		"name": "giyyapan",
 		"email": "giyyapan@gmail.com"
@@ -70,7 +75,8 @@
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"pretest": "yarn run compile",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/runTest.js",
+		"publish": "vsce publish"
 	},
 	"devDependencies": {
 		"@types/glob": "^7.1.1",
