@@ -23,7 +23,25 @@ There's some reason that I can't use the official [vscode-python](https://market
    * See https://github.com/timothycrosley/isort#configuring-isort for more info.
    */
   pyformat.isortArgs: string[]
+
+  /**
+   * Enable import organization functionality. defaults to true.
+   * You can turn this off if you already have other extensions deals with your import for python files.
+   * The command "pyformat.sortImports" will still be available even this is disabled.
+   */
+  pyformat.enableImportOrganization: boolean
 }
+```
+
+## Format and sort imports on save
+Adding the following settings in your project or global settings.
+```typescript
+  /** Enable format on save */
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    /** Pyformat use it's own code action to prevent confliction with other tools. */
+    "source.organizeImports.pyformat": true
+  }
 ```
 
 ## license

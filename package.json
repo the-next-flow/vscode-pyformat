@@ -55,6 +55,12 @@
 						"type": "string"
 					},
 					"scope": "resource"
+				},
+				"pyformat.enableImportOrganization": {
+					"type": "boolean",
+					"description": "Enable import organization functionality, defaults to true. You must restart vscode after change this",
+					"default": true,
+					"scope": "resource"
 				}
 			}
 		}

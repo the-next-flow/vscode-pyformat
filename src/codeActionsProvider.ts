@@ -7,17 +7,21 @@ import { getModuleExecutable, isModuleNotFoundError } from './helpers/envHelper'
 import { createTemporaryFile, removeFile, writeFile } from './helpers/fsHelper'
 
 export class CodeActionProvider implements vscode.CodeActionProvider {
-  public provideCodeActions(_document: vscode.TextDocument, _range: vscode.Range, _context: vscode.CodeActionContext, _token: vscode.CancellationToken): vscode.ProviderResult<vscode.CodeAction[]> {
-    const sortImports = new vscode.CodeAction(
+  public provideCodeActions(document: vscode.TextDocument, range: vscode.Range, _context: vscode.CodeActionContext, _token: vscode.CancellationToken): vscode.ProviderResult<vscode.CodeAction[]> {
+    const config: PyformatConfig = vscode.workspace.getConfiguration(IDENTIFIER, document.uri) as any
+    if (!config.enableImportOrganization) {
+      return []
+    }
+
+    const codeAction = new vscode.CodeAction(
       'PyFormat: Sort imports',
-      vscode.CodeActionKind.SourceOrganizeImports
+      vscode.CodeActionKind.SourceOrganizeImports.append('pyformat')
     )
-    sortImports.command = {
+    codeAction.command = {
       title: 'PyFormat: Sort imports',
       command: 'pyformat.sortImports'
     }
-
-    return [sortImports]
+    return [codeAction]
   }
 
   public async sortImports(document: vscode.TextDocument) {
