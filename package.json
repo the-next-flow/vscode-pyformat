@@ -2,7 +2,7 @@
 	"name": "pyformat",
 	"displayName": "PyFormat",
 	"description": "Providing code formatting and import organization using autopep8 and isort",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "giyyapan",
 	"homepage": "https://github.com/giyyapan/vscode-pyformat",
 	"repository": {

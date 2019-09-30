@@ -34,7 +34,8 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
 
     const tmpFile = document.isDirty ? await createTemporaryFile(Path.extname(document.uri.fsPath)) : undefined
     if (tmpFile) {
-      await writeFile(tmpFile.filePath, document.getText())
+      // add a '\n' to the end of the document to avoid isort's bug
+      await writeFile(tmpFile.filePath, document.getText() + '\n')
     }
 
     const args = ['--diff', ...isortArgs, tmpFile ? tmpFile.filePath : document.uri.fsPath]
@@ -57,7 +58,7 @@ export class CodeActionProvider implements vscode.CodeActionProvider {
       })
     })
     const workspaceEdit = getWorkspaceEditFromPatch(document.getText(), stdout, document.uri)
-    vscode.workspace.applyEdit(workspaceEdit)
+    await vscode.workspace.applyEdit(workspaceEdit)
     if (tmpFile) {
       await removeFile(tmpFile.filePath)
       tmpFile.dispose()
