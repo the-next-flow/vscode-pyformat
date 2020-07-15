@@ -2,7 +2,7 @@
 	"name": "pyformat",
 	"displayName": "PyFormat",
 	"description": "Providing code formatting and import organization using autopep8 and isort",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"publisher": "giyyapan",
 	"homepage": "https://github.com/giyyapan/vscode-pyformat",
 	"repository": {
@@ -38,11 +38,32 @@
 			"type": "object",
 			"title": "PyFormat",
 			"properties": {
+				"pyformat.formatProvider": {
+					"type": "string",
+					"enum": [
+						"autopep8",
+						"black"
+					],
+					"description": "Which format provider should PyFormat use when formatting codes. Defaults to autopep8",
+					"default": "autopep8",
+					"scope": "resource"
+				},
 				"pyformat.autopep8Args": {
 					"type": "array",
 					"description": "Arguments passed to autopep8. Each argument is a separate item in the array.",
 					"default": [
 						"--max-line-length 120"
+					],
+					"items": {
+						"type": "string"
+					},
+					"scope": "resource"
+				},
+				"pyformat.blackArgs": {
+					"type": "array",
+					"description": "Arguments passed to black. Each argument is a separate item in the array.",
+					"default": [
+						"--line-length 120"
 					],
 					"items": {
 						"type": "string"

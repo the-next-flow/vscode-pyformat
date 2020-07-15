@@ -37,8 +37,6 @@ export class FormattingEditProvider implements vscode.DocumentFormattingEditProv
       return []
     }
 
-    console.log('pyformat: format document')
-
     // console.log('document uri', document.uri)
 
     // Remember content before formatting so we can detect if
@@ -48,10 +46,69 @@ export class FormattingEditProvider implements vscode.DocumentFormattingEditProv
       this.documentVersionBeforeFormatting = document.version
     }
     const config: PyformatConfig = vscode.workspace.getConfiguration(IDENTIFIER, document.uri) as any
-    const { autopep8Args = [] } = config
-    // console.log({ autopep8Args })
+    const { formatProvider, blackArgs, autopep8Args = [] } = config
+    if (formatProvider === 'black') {
+      return await this.formatWithBlack(document, range, blackArgs)
+    } else {
+      return await this.formatWithAutoPep8(document, range, autopep8Args)
+    }
+  }
 
-    // autopep8 and yapf have the ability to read from the process input stream and return the formatted code out of the output stream.
+  private async formatWithBlack(document: vscode.TextDocument, range: vscode.Range | undefined, blackArgs: string[]): Promise<TextEdit[]> {
+    console.log('pyformat: format with black')
+    // black and have the ability to read from the process input stream and return the formatted code out of the output stream.
+    // However they don't support returning the diff of the formatted text when reading data from the input stream.
+    // Yet getting text formatted that way avoids having to create a temporary file, however the diffing will have
+    // to be done here in node (extension), i.e. extension CPU, i.e. less responsive solution.
+    const tmpFile = document.isDirty ? await createTempFile(Path.extname(document.uri.fsPath)) : undefined
+    if (tmpFile) {
+      await writeFile(tmpFile.filePath, document.getText())
+    }
+
+    const args = ['--diff', '--quiet', ...blackArgs, tmpFile ? tmpFile.filePath : document.uri.fsPath]
+
+    if (range && !range.isEmpty) {
+      // NOTE: black does not support range formatting
+      vscode.window.showErrorMessage('Format in range is not supported by black.')
+      return []
+    }
+
+    const stdout = await new Promise<string | null>((resolve, reject) => {
+      const command = `${getModuleExecutable('black', document.uri)} ${args.join(' ')}`
+      // console.log({ command })
+      exec(command, (err, stdout, stderr) => {
+        // console.log('autopep8 exec complete', { command, err, stdout, stderr })
+        if (err) {
+          reject(err || stderr)
+          let msg = 'Format with "black" failed.'
+          if (isModuleNotFoundError(err)) {
+            msg += '\nPlease install "black" in your python environment'
+          }
+          vscode.window.showErrorMessage(msg)
+          resolve(null)
+          return
+        }
+        resolve(stdout)
+      })
+    })
+
+    if (stdout === null) {
+      return []
+    }
+
+    const edits = getTextEditsFromPatch(document.getText(), stdout)
+    // console.log({ edits })
+    this.formatterMadeChanges = edits.length > 0
+    if (tmpFile) {
+      await removeFile(tmpFile.filePath)
+      tmpFile.dispose()
+    }
+    return edits
+  }
+
+  private async formatWithAutoPep8(document: vscode.TextDocument, range: vscode.Range | undefined, autopep8Args: string[]): Promise<TextEdit[]> {
+    console.log('pyformat: format with autopep8')
+    // autopep8 and have the ability to read from the process input stream and return the formatted code out of the output stream.
     // However they don't support returning the diff of the formatted text when reading data from the input stream.
     // Yet getting text formatted that way avoids having to create a temporary file, however the diffing will have
     // to be done here in node (extension), i.e. extension CPU, i.e. less responsive solution.
@@ -66,7 +123,7 @@ export class FormattingEditProvider implements vscode.DocumentFormattingEditProv
       args.push(...['--line-range', (range!.start.line + 1).toString(), (range!.end.line + 1).toString()])
     }
 
-    const stdout = await new Promise<string>((resolve, reject) => {
+    const stdout = await new Promise<string | null>((resolve, reject) => {
       const command = `${getModuleExecutable('autopep8', document.uri)} ${args.join(' ')}`
       // console.log({ command })
       exec(command, (err, stdout, stderr) => {
@@ -78,11 +135,16 @@ export class FormattingEditProvider implements vscode.DocumentFormattingEditProv
             msg += '\nPlease install "autopep8" in your python environment'
           }
           vscode.window.showErrorMessage(msg)
+          resolve(null)
           return
         }
         resolve(stdout)
       })
     })
+
+    if (stdout === null) {
+      return []
+    }
 
     const edits = getTextEditsFromPatch(document.getText(), stdout)
     // console.log({ edits })
