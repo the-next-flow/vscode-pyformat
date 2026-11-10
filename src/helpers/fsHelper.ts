@@ -16,7 +16,7 @@ export function createTemporaryFile(extension: string): Promise<TemporaryFile> {
 }
 
 export async function writeFile(filePath: string, text: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     fs.writeFile(filePath, text, { encoding: 'utf8' }, (err) => {
       if (err) {
         reject(err)
@@ -28,7 +28,7 @@ export async function writeFile(filePath: string, text: string) {
 }
 
 export async function removeFile(filePath: string) {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     fs.unlink(filePath, (err) => {
       if (err) {
         reject(err)

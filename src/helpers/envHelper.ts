@@ -15,7 +15,7 @@ export function getModuleExecutable(moduleName: string, documentUri: vscode.Uri)
       return Path.normalize(Path.join(workspacePath, venvPath, 'bin', moduleName))
     }
   } else if (pythonPath) {
-    if (pythonPath.startsWith('python' || isAbsolutePath(pythonPath))) {
+    if (pythonPath.startsWith('python') || isAbsolutePath(pythonPath)) {
       // absolute path or global inteperator
       return `${pythonPath} -m ${moduleName}`
     } else {
